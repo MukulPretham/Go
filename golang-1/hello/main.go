@@ -5,6 +5,6 @@ import ("fmt"
 )
 
 func main() {
-	message := greetings.Hello("mukul")
+	message := 
 	fmt.Println(message)
 }
