@@ -18,3 +18,11 @@ func main(){
 	nullify(p)
 	fmt.Print(*p)
 }
+
+// func main(){
+// 	var x int = 1
+// 	var p *int = &x
+// 	fmt.Println(x)
+// 	fmt.Println(p)
+// 	fmt.Println(*p)
+// }
