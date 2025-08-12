@@ -42,7 +42,7 @@ func MakeSliceExe()([]int,[]int){
 	return a,b
 }
 
-func AppemdToSliceExe() []int{
+func AppemdToSliceExe()[]int {
 	a := []int{1,2,3}
 	a = append(a,2)
 	return a
