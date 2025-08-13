@@ -23,6 +23,9 @@ import "fmt"
 
 //pg3
 func main(){
-	fmt.Print(WordCount("I am learning Go!"))
+	f := fibonacci()
+	for i := 0; i < 10; i++ {
+		fmt.Println(f())
+	}
 }
 
