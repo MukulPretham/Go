@@ -23,6 +23,6 @@ import "fmt"
 
 //pg3
 func main(){
-	fmt.Print(Pic(5,5))
+	fmt.Print(WordCount("I am learning Go!"))
 }
 
