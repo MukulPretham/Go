@@ -1,5 +1,7 @@
 package main
 
+// clousuers
+
 func startInc(init int) func(int) int{
 	counter := init
 	return func(i int) int {

@@ -23,9 +23,14 @@ import "fmt"
 
 //pg3
 func main(){
-	f := fibonacci()
-	for i := 0; i < 10; i++ {
-		fmt.Println(f())
-	}
+	list := arrayList{}
+	list.cons()
+	// list.arr = append(list.arr, 1)
+	list.appendVal(99)
+	fmt.Print(list.arr)
+	appendToList(&list,1)
+	appendToList(&list,10)
+	fmt.Print(list.arr)
+	fmt.Print("length:",len(list.arr))
 }
 
