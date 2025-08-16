@@ -1,12 +1,15 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 func main(){
 	arr1 := []int{1,2,3}
 	arr2 := []int{1,2,3,2,2,3,2,23,32,32,32,12,32,43,2,2}
 
-	var ch chan int
+	ch := make(chan int)
 
 	go sum(arr1,ch)
 	go sum(arr2,ch)
