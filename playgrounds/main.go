@@ -1,6 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 //pg1
 // func main(){
@@ -23,11 +26,12 @@ import "fmt"
 
 //pg3
 func main(){
-	var val,err = Sqrt(-16)
-	if err != nil{
-		fmt.Print(err)
-	}else{
-		fmt.Print(val)
-	}
+	start := time.Now()
+	ch := make(chan int)
+	go sum([]int{1,2,3,4,5,34,345,345,34,3455,4,24,435,34,34,345,345,34,},ch)
+	go sum([]int{1,2,3,4,5,34,43,34,34,4,4,546,456,5,4,5,4,5,4,435,435,345},ch)
+	sum1, sum2 := <-ch,<-ch
+	fmt.Print("calcullation time : ",time.Since(start))
+	fmt.Print(sum1+sum2)
 }
 
