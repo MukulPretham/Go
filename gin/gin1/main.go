@@ -52,15 +52,21 @@ func main() {
 	})
 
 	router.GET("/album/:name", func(ctx *gin.Context) {
-		param := ctx.Param("id")
-		for _, val := range albums {
-			if val.Artist == param {
-				ctx.IndentedJSON(200, val)
-				return
-			}
+		param := ctx.Param("name")
+		var result album
+	
+		// Search by artist, case-insensitive
+		err := db.First(&result, "artist ILIKE ?", param).Error
+		if err != nil {
+			// Send 404 and stop
+			ctx.JSON(404, gin.H{"error": "album not found"})
+			return
 		}
-		ctx.IndentedJSON(404, gin.H{"error": "album not found"})
+	
+		// Send the found album
+		ctx.JSON(200, result)
 	})
+	
 
 	router.Run(":3000")
 }
