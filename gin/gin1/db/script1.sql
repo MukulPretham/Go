@@ -1,0 +1,8 @@
+
+CREATE TABLE albums(
+  ID         INT AUTO_INCREMENT NOT NULL,
+  Title      VARCHAR(128) NOT NULL,
+  Artist     VARCHAR(255) NOT NULL,
+  Price      DECIMAL(5,2) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
