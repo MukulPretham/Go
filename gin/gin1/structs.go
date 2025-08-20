@@ -1,9 +1,7 @@
 package main
 
-import "gorm.io/gorm"
 
 type Book struct{
-	gorm.Model
 	ID uint
 	Title string
 	Author string
@@ -11,6 +9,6 @@ type Book struct{
 }
 
 type UpdateReq struct{
-	attribute string
-	value string
+	Attribute string 
+	Value string 
 }

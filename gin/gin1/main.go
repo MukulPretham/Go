@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 
@@ -38,7 +39,11 @@ func main(){
 	router.GET("/books",func(ctx *gin.Context) {
 		var allBooks []Book
 		result:= db.Find(&allBooks)
-		ctx.IndentedJSON(http.StatusOK,result)
+		if result.Error != nil{
+			ctx.IndentedJSON(http.StatusBadGateway,gin.H{"error":"db error"})
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK,allBooks)
 	})
 
 	router.GET("/book/:author",func(ctx *gin.Context) {
@@ -50,19 +55,21 @@ func main(){
 			ctx.IndentedJSON(http.StatusBadGateway,gin.H{"error":"db error"})
 			return
 		}
-		ctx.IndentedJSON(http.StatusOK,result)
+		ctx.IndentedJSON(http.StatusOK,currBooks)
 	})
 
-	router.POST("update",func(ctx *gin.Context) {
+	router.POST("/update",func(ctx *gin.Context) {
 		var updateReq UpdateReq
-		err := ctx.BindQuery(updateReq)
+		err := ctx.BindQuery(&updateReq)
+		fmt.Print(updateReq)
 		if err !=nil{
 			ctx.IndentedJSON(http.StatusBadRequest,gin.H{"error":"bad request"})
 			return
 		}
-		result := db.Model(&Book{}).Update(updateReq.attribute,updateReq.value)
-		if result.Error != nil{
-			ctx.IndentedJSON(http.StatusBadGateway,gin.H{"error":"db error"})
+		result := db.Model(&Book{}).Where("author = ?",updateReq.Value).Update("author","removed")
+		
+		if result.Error != nil{	
+			ctx.IndentedJSON(http.StatusBadRequest,gin.H{"error":"bad query"})
 			return
 		}
 		ctx.IndentedJSON(http.StatusAccepted,gin.H{"message":"done"})
