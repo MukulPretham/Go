@@ -1,72 +1,72 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
-type ReqBody struct {
-	Message string
-}
-
-type album struct {
-	ID     uint  `json:"id"`
-	Title  string  `json:"title"`
-	Artist string  `json:"artist"`
-	Price  float64 `json:"price"`
-}
-
-var albums = []album{
-	{Title: "Blue Train", Artist: "John Coltrane", Price: 56.99},
-	{Title: "Jeru", Artist: "Gerry Mulligan", Price: 17.99},
-	{ Title: "Sarah Vaughan and Clifford Brown", Artist: "Sarah Vaughan", Price: 39.99},
-}
-
-func main() {
-	var dsn = "host=localhost user=postgres password=9059015626 dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Kolkata"
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("cannot connect to the db: ", err)
-	}
-
-	db.AutoMigrate(&album{})
-
+func main(){
 	router := gin.Default()
 
-	router.GET("/album", func(ctx *gin.Context) {
-		ctx.IndentedJSON(200, albums)
-	})
+	//
+	db_string := "host=localhost user=postgres password=9059015626 dbname=postgres port=5432"
+	db,err := gorm.Open(postgres.Open(db_string))
+	if err!=nil{
+		log.Fatal("server was not able to connect to db")
+	}
+	db.AutoMigrate(&Book{})
 
-	router.POST("/album", func(ctx *gin.Context) {
-		var body album
-		if err := ctx.BindJSON(&body); err != nil {
-			ctx.JSON(400, gin.H{"errro": "error while reading body"})
-		}
-		db.Create(&body)
-		fmt.Print(albums)
-		ctx.JSON(200, gin.H{"message": "album added"})
-	})
-
-	router.GET("/album/:name", func(ctx *gin.Context) {
-		param := ctx.Param("name")
-		var result album
-	
-		// Search by artist, case-insensitive
-		err := db.First(&result, "artist ILIKE ?", param).Error
-		if err != nil {
-			// Send 404 and stop
-			ctx.JSON(404, gin.H{"error": "album not found"})
+	router.POST("/book",func(ctx *gin.Context) {
+		var currBook Book
+		if err := ctx.BindJSON(&currBook); err!=nil{
+			ctx.IndentedJSON(http.StatusBadRequest,gin.H{"error":"invalid request"})
 			return
 		}
-	
-		// Send the found album
-		ctx.JSON(200, result)
+		result := db.Create(&currBook)
+		if result.Error != nil{
+			ctx.IndentedJSON(http.StatusBadGateway,gin.H{"error":"db error"})
+			return
+		}
+		ctx.JSON(200,gin.H{ "message" : "entry created"})
 	})
-	
+
+	router.GET("/books",func(ctx *gin.Context) {
+		var allBooks []Book
+		result:= db.Find(&allBooks)
+		ctx.IndentedJSON(http.StatusOK,result)
+	})
+
+	router.GET("/book/:author",func(ctx *gin.Context) {
+		authorName := ctx.Param("author")
+
+		var currBooks []Book
+		result:= db.Where("author = ?",authorName).Find(&currBooks)
+		if result.Error != nil{
+			ctx.IndentedJSON(http.StatusBadGateway,gin.H{"error":"db error"})
+			return
+		}
+		ctx.IndentedJSON(http.StatusOK,result)
+	})
+
+	router.POST("update",func(ctx *gin.Context) {
+		var updateReq UpdateReq
+		err := ctx.BindQuery(updateReq)
+		if err !=nil{
+			ctx.IndentedJSON(http.StatusBadRequest,gin.H{"error":"bad request"})
+			return
+		}
+		result := db.Model(&Book{}).Update(updateReq.attribute,updateReq.value)
+		if result.Error != nil{
+			ctx.IndentedJSON(http.StatusBadGateway,gin.H{"error":"db error"})
+			return
+		}
+		ctx.IndentedJSON(http.StatusAccepted,gin.H{"message":"done"})
+	})
 
 	router.Run(":3000")
 }
